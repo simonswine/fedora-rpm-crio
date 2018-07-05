@@ -26,6 +26,9 @@
 %global service_name crio
 
 Name:           %{repo}
+%if 0%{?fedora}
+Epoch: 2
+%endif
 Version:        1.11.0
 Release:        1.rhaos3.11.git%{shortcommit0}%{?dist}
 Summary:        CRI-O is the Kubernetes Container Runtime Interface for OCI-based containers
