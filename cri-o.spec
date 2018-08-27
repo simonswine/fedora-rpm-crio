@@ -8,55 +8,49 @@
 %global debug_package   %{nil}
 %endif
 
-%if ! 0%{?gobuild:1}
-%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n')" -tags "$BUILDTAGS" -a -v -x %{?**};
-%endif
-
-%global provider        github
-%global provider_tld    com
-%global project         kubernetes-incubator
-%global repo            cri-o
+%global provider github
+%global provider_tld com
+%global project kubernetes-incubator
+%global repo cri-o
 # https://github.com/kubernetes-incubator/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
-%global import_path     %{provider_prefix}
-%global commit0         441bd3d759787684672a7153f7f5a21b604b458b
-%global shortcommit0    %(c=%{commit0}; echo ${c:0:7})
-%global git0            https://%{provider_prefix}
+%global import_path %{provider_prefix}
+%global commit0 3eac3b2389f7c949bc84e73cf9169d9efdc7d491
+%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
+%global git0 https://%{provider_prefix}
 
 %global service_name crio
 
-Name:           %{repo}
-%if 0%{?fedora}
+Name: %{repo}
 Epoch: 2
-%endif
-Version:        1.11.0
-Release:        1.rhaos3.11.git%{shortcommit0}%{?dist}
-Summary:        CRI-O is the Kubernetes Container Runtime Interface for OCI-based containers
-License:        ASL 2.0
-URL:            %{git0}
-Source0:        %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
-Source3:        %{service_name}-network.sysconfig
-Source4:        %{service_name}-storage.sysconfig
+Version: 1.11.2
+Release: 1.git%{shortcommit0}%{?dist}
+Summary: CRI-O is the Kubernetes Container Runtime Interface for OCI-based containers
+License: ASL 2.0
+URL: %{git0}
+Source0: %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
+Source3: %{service_name}-network.sysconfig
+Source4: %{service_name}-storage.sysconfig
 
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
-BuildRequires:  %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
-BuildRequires:  btrfs-progs-devel
-BuildRequires:  git
-BuildRequires:  glib2-devel
-BuildRequires:  glibc-static
-BuildRequires:  go-md2man
-BuildRequires:  gpgme-devel
-BuildRequires:  libassuan-devel
-BuildRequires:  libseccomp-devel
-BuildRequires:  pkgconfig(systemd)
-BuildRequires:  device-mapper-devel
-Requires(pre):  container-selinux
-Requires:       skopeo-containers >= 1:0.1.24-3
-Requires:       runc >= 1.0.0-16
-Obsoletes:      ocid <= 0.3
-Provides:       ocid = %{version}-%{release}
-Provides:       %{service_name} = %{version}-%{release}
-Requires:       containernetworking-plugins >= 0.7.0-101
+BuildRequires: %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
+BuildRequires: btrfs-progs-devel
+BuildRequires: git
+BuildRequires: glib2-devel
+BuildRequires: glibc-static
+BuildRequires: go-md2man
+BuildRequires: gpgme-devel
+BuildRequires: libassuan-devel
+BuildRequires: libseccomp-devel
+BuildRequires: pkgconfig(systemd)
+BuildRequires: device-mapper-devel
+Requires(pre): container-selinux
+Requires: containers-common >= 1:0.1.31-14
+Requires: runc >= 1.0.0-16
+Obsoletes: ocid <= 0.3
+Provides: ocid = %{version}-%{release}
+Provides: %{service_name} = %{version}-%{release}
+Requires: containernetworking-plugins >= 0.7.3-1
 
 %description
 %{summary}
@@ -75,8 +69,8 @@ popd
 ln -s vendor src
 export GOPATH=$(pwd)/_output:$(pwd):$(pwd):%{gopath}
 export BUILDTAGS="selinux seccomp $(./hack/btrfs_tag.sh) $(./hack/libdm_tag.sh) containers_image_ostree_stub"
-GOPATH=$GOPATH BUILDTAGS=$BUILDTAGS %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
-BUILDTAGS=$BUILDTAGS make bin/conmon bin/pause docs
+%gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
+BUILDTAGS=$BUILDTAGS %{__make} bin/conmon bin/pause docs
 
 ./bin/%{service_name} \
   --selinux=true \
@@ -154,6 +148,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
 
 %changelog
+* Mon Aug 27 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.2-1.git3eac3b2
+- bump to v1.11.2
+
 * Mon Jul 2 2018 Dan Walsh <dwalsh@redhat.com> - 2:1.11.0-1.rhaos3.11.git441bd3d
 - bump to v1.11.0
 
