@@ -31,7 +31,6 @@ URL: %{git0}
 Source0: %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
 Source3: %{service_name}-network.sysconfig
 Source4: %{service_name}-storage.sysconfig
-
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
 BuildRequires: %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
 BuildRequires: btrfs-progs-devel
@@ -54,6 +53,12 @@ Requires: containernetworking-plugins >= 0.7.3-1
 
 %description
 %{summary}
+
+%package -n conmon
+Summary: OCI container runtime monitor
+
+%description -n conmon
+conmon is an OCI container runtime monitor.
 
 %prep
 %autosetup -Sgit -n %{name}-%{commit0}
@@ -147,9 +152,15 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %dir %{_datadir}/oci-umount/oci-umount.d
 %{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
 
+%files -n conmon
+%license LICENSE
+%doc README.md
+%{_libexecdir}/%{service_name}/conmon
+
 %changelog
 * Mon Aug 27 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.2-1.git3eac3b2
 - bump to v1.11.2
+- conmon is a separate subpackage
 
 * Mon Jul 2 2018 Dan Walsh <dwalsh@redhat.com> - 2:1.11.0-1.rhaos3.11.git441bd3d
 - bump to v1.11.0
