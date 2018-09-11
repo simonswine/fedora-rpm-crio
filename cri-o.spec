@@ -5,7 +5,7 @@
 %global _find_debuginfo_dwz_opts %{nil}
 %global _dwz_low_mem_die_limit 0
 %else
-%global debug_package   %{nil}
+%global debug_package %{nil}
 %endif
 
 %global provider github
@@ -15,7 +15,7 @@
 # https://github.com/kubernetes-incubator/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 3eac3b2389f7c949bc84e73cf9169d9efdc7d491
+%global commit0 4fbb0226dd4114aabc5ed13e292179f00e0f8690
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -23,8 +23,8 @@
 
 Name: %{repo}
 Epoch: 2
-Version: 1.11.2
-Release: 2.git%{shortcommit0}%{?dist}
+Version: 1.11.3
+Release: 1.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
 Summary: CRI-O is the Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -159,6 +159,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %{_libexecdir}/%{service_name}/conmon
 
 %changelog
+* Tue Sep 11 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.3-1.git4fbb022
+- bump to v1.11.3
+
 * Mon Aug 27 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.2-2.git3eac3b2
 - no go-md2man or go compiler for ppc64
 
