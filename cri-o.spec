@@ -10,12 +10,12 @@
 
 %global provider github
 %global provider_tld com
-%global project kubernetes-incubator
+%global project kubernetes-sigs
 %global repo cri-o
 # https://github.com/kubernetes-incubator/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 4fbb0226dd4114aabc5ed13e292179f00e0f8690
+%global commit0 e0c89d8df1a23b3ff586e5baaa36a396ff4ca571
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -23,7 +23,7 @@
 
 Name: %{repo}
 Epoch: 2
-Version: 1.11.3
+Version: 1.11.4
 Release: 1.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
 Summary: CRI-O is the Kubernetes Container Runtime Interface for OCI-based containers
@@ -64,6 +64,7 @@ conmon is an OCI container runtime monitor.
 %prep
 %autosetup -Sgit -n %{name}-%{commit0}
 sed -i '/strip/d' pause/Makefile
+sed -i 's/install.config: crio.conf/install.config:/' Makefile
 
 %build
 mkdir _output
@@ -78,17 +79,18 @@ export BUILDTAGS="selinux seccomp $(./hack/btrfs_tag.sh) $(./hack/libdm_tag.sh) 
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
 BUILDTAGS=$BUILDTAGS %{__make} bin/conmon bin/pause docs
 
-./bin/%{service_name} \
-  --selinux=true \
-  --storage-driver=overlay \
-  --conmon /usr/libexec/%{service_name}/conmon \
-  --cni-plugin-dir /usr/libexec/cni \
-  --default-mounts /usr/share/rhel/secrets:/run/secrets \
-  --storage-opt overlay.override_kernel_check=1 \
-  --cgroup-manager=systemd config > %{service_name}.conf
-
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
+./bin/%{service_name} \
+      --selinux \
+      --cgroup-manager "systemd" \
+      --storage-driver "overlay" \
+      --conmon "%{_libexecdir}/%{service_name}/conmon" \
+      --cni-plugin-dir "%{_libexecdir}/cni" \
+      --default-mounts "%{_datadir}/rhel/secrets:/run/secrets" \
+      --storage-opt "overlay.override_kernel_check=1" \
+      --file-locking=false config > %{service_name}.conf
+
 make DESTDIR=%{buildroot} PREFIX=%{buildroot}%{_prefix} install.config install.systemd install.completions
 
 # install binaries
@@ -159,6 +161,11 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %{_libexecdir}/%{service_name}/conmon
 
 %changelog
+* Mon Sep 17 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.4-1.gite0c89d8
+- bump to v1.11.4
+- built commit e0c89d8
+- crio.conf changes: cgroup_manager=systemd, file_locking=false
+
 * Tue Sep 11 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.3-1.git4fbb022
 - bump to v1.11.3
 
