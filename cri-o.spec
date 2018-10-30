@@ -1,4 +1,4 @@
-%global with_debug 0
+%global with_debug 1
 %global with_check 0
 
 %if 0%{?with_debug}
@@ -15,7 +15,7 @@
 # https://github.com/kubernetes-incubator/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 e0c89d8df1a23b3ff586e5baaa36a396ff4ca571
+%global commit0 71cc46544a8d31229c4ef2b88b42485f4d997c03
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -23,10 +23,10 @@
 
 Name: %{repo}
 Epoch: 2
-Version: 1.11.4
+Version: 1.11.8
 Release: 1.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
-Summary: CRI-O is the Kubernetes Container Runtime Interface for OCI-based containers
+Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
 URL: %{git0}
 Source0: %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
@@ -43,7 +43,6 @@ BuildRequires: gpgme-devel
 BuildRequires: libassuan-devel
 BuildRequires: libseccomp-devel
 BuildRequires: pkgconfig(systemd)
-BuildRequires: device-mapper-devel
 Requires(pre): container-selinux
 Requires: containers-common >= 1:0.1.31-14
 Requires: runc >= 1.0.0-16
@@ -74,24 +73,27 @@ ln -s $(dirs +1 -l) src/%{import_path}
 popd
 
 ln -s vendor src
-export GOPATH=$(pwd)/_output:$(pwd):$(pwd):%{gopath}
-export BUILDTAGS="selinux seccomp $(./hack/btrfs_tag.sh) $(./hack/libdm_tag.sh) containers_image_ostree_stub"
+export GOPATH=$(pwd)/_output:$(pwd)
+export BUILDTAGS="$(hack/btrfs_installed_tag.sh) $(hack/btrfs_tag.sh) $(hack/libdm_installed.sh) $(hack/libdm_no_deferred_remove_tag.sh) $(hack/ostree_tag.sh) $(hack/seccomp_tag.sh) $(hack/selinux_tag.sh)"
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
-BUILDTAGS=$BUILDTAGS %{__make} bin/conmon bin/pause docs
+
+# build conmon
+%gobuild -o bin/crio-config %{import_path}/cmd/crio-config
+pushd conmon && ../bin/crio-config
+%{__make} all
+popd
+
+%{__make} bin/pause docs
 
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 ./bin/%{service_name} \
       --selinux \
       --cgroup-manager "systemd" \
-      --storage-driver "overlay" \
       --conmon "%{_libexecdir}/%{service_name}/conmon" \
       --cni-plugin-dir "%{_libexecdir}/cni" \
       --default-mounts "%{_datadir}/rhel/secrets:/run/secrets" \
-      --storage-opt "overlay.override_kernel_check=1" \
       --file-locking=false config > %{service_name}.conf
-
-make DESTDIR=%{buildroot} PREFIX=%{buildroot}%{_prefix} install.config install.systemd install.completions
 
 # install binaries
 install -dp %{buildroot}{%{_bindir},%{_libexecdir}/%{service_name}}
@@ -99,23 +101,42 @@ install -p -m 755 bin/%{service_name} %{buildroot}%{_bindir}
 install -p -m 755 bin/conmon %{buildroot}%{_libexecdir}/%{service_name}
 install -p -m 755 bin/pause %{buildroot}%{_libexecdir}/%{service_name}
 
+# install conf files
 install -dp %{buildroot}%{_sysconfdir}/cni/net.d
 install -p -m 644 contrib/cni/10-crio-bridge.conf %{buildroot}%{_sysconfdir}/cni/net.d/100-crio-bridge.conf
 install -p -m 644 contrib/cni/99-loopback.conf %{buildroot}%{_sysconfdir}/cni/net.d/200-loopback.conf
+
+install -dp %{buildroot}%{_sysconfdir}/%{service_name}
+install -dp %{buildroot}%{_datadir}/containers/oci/hooks.d
+install -dp %{buildroot}%{_datadir}/oci-umount/oci-umount.d
+install -p -m 644 crio.conf %{buildroot}%{_sysconfdir}/%{service_name}
+install -p -m 644 seccomp.json %{buildroot}%{_sysconfdir}/%{service_name}
+install -p -m 644 crio-umount.conf %{buildroot}%{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
+install -p -m 644 crictl.yaml %{buildroot}%{_sysconfdir}
 
 install -dp %{buildroot}%{_sysconfdir}/sysconfig
 install -p -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-network
 install -p -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-storage
 
-install -dp %{buildroot}%{_mandir}/man{1,5,8}
-install -m 644 docs/*.5 %{buildroot}%{_mandir}/man5
-install -m 644 docs/*.8 %{buildroot}%{_mandir}/man8
+# install manpages
+install -dp %{buildroot}%{_mandir}/man{5,8}
+install -p -m 644 docs/*.5 %{buildroot}%{_mandir}/man5
+install -p -m 644 docs/*.8 %{buildroot}%{_mandir}/man8
 
-mkdir -p %{buildroot}%{_sharedstatedir}/containers
+# install bash completion
+install -dp %{buildroot}%{_datadir}/bash-completion/completions
+
+# install unitfiles
+install -dp %{buildroot}%{_unitdir}
+install contrib/systemd/%{service_name}.service %{buildroot}%{_unitdir}
+ln -sf %{_unitdir}/%{service_name}.service %{buildroot}%{_unitdir}/%{name}.service
+install contrib/systemd/%{service_name}-shutdown.service %{buildroot}%{_unitdir}
+
+install -dp %{buildroot}%{_sharedstatedir}/containers
 
 %check
 %if 0%{?with_check}
-export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
+export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %endif
 
 %post
@@ -161,6 +182,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %{_libexecdir}/%{service_name}/conmon
 
 %changelog
+* Tue Oct 30 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.8-1.git71cc465
+- bump to v1.11.8
+- built commit 71cc465
+
 * Mon Sep 17 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.11.4-1.gite0c89d8
 - bump to v1.11.4
 - built commit e0c89d8
