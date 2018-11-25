@@ -15,7 +15,7 @@
 # https://github.com/kubernetes-incubator/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 774a29ecf6855f2dff266dc2aa2fe81d7d964465
+%global commit0 18bc81132aed7290436ed82b24442e00a80afdeb
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -23,7 +23,7 @@
 
 Name: %{repo}
 Epoch: 2
-Version: 1.12.0
+Version: 1.12.1
 Release: 1.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
@@ -183,6 +183,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_libexecdir}/%{service_name}/conmon
 
 %changelog
+* Sat Nov 24 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.12.0-1.git18bc811
+- bump to v1.12.1
+
 * Tue Oct 30 2018 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.12.0-1.git774a29e
 - bump to v1.12.0
 
