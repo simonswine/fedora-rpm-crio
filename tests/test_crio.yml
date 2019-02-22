@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  vars:
+  - artifacts: ./artifacts
+  tags:
+    - classic
+    - container
+#    - atomic
+
+  tasks:
+  - name: install integration tests
+    dnf: name={{ item }} state=present enablerepo=updates-testing
+    with_items:
+      - cri-o
+      - cri-o-integration-tests
+      - cri-tools
+      - nmap-ncat
+      - socat
+      - containernetworking-cni
+      - conntrack-tools
+      - python2
+      - bats
+
+  - block:
+      - name: Run test
+        script: ./test_crio.sh
+    always:
+      - name: Pull out logs
+        fetch:
+          src: "/tmp/{{ item }}"
+          dest: "{{ artifacts }}/{{ item }}"
+          flat: yes
+        with_items:
+          - test.log
+          - test.debug.log
+          - test.full.log
