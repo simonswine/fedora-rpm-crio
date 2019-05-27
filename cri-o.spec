@@ -24,7 +24,7 @@
 Name: %{repo}
 Epoch: 2
 Version: 1.14.1
-Release: 1.git%{shortcommit0}%{?dist}
+Release: 2.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -32,6 +32,7 @@ URL: %{git0}
 Source0: %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
 Source3: %{service_name}-network.sysconfig
 Source4: %{service_name}-storage.sysconfig
+Patch0: 0001-fix-build-issues-on-x86-and-32-bit-arm.patch
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
 BuildRequires: %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
 BuildRequires: btrfs-progs-devel
@@ -183,6 +184,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_libexecdir}/%{service_name}/conmon
 
 %changelog
+* Mon May 27 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.14.1-2.gitb7644f6
+- add a patch to build on 32-bit systems (upstream PR: 2409)
+
 * Thu May 23 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.14.1-1.gitb7644f6
 - bump to v1.14.1
 

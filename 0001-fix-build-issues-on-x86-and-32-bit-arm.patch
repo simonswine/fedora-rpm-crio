@@ -1,0 +1,95 @@
+From 975f491ad9e2a1749fe9b8cc011e1cd48e521f70 Mon Sep 17 00:00:00 2001
+From: Lokesh Mandvekar <lsm5@fedoraproject.org>
+Date: Mon, 27 May 2019 08:06:15 +0000
+Subject: [PATCH] fix build issues on x86 and 32-bit arm
+
+Signed-off-by: Lokesh Mandvekar <lsm5@fedoraproject.org>
+---
+ oci/stats.go    |  2 ++
+ oci/stats_32.go | 64 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 66 insertions(+)
+ create mode 100644 oci/stats_32.go
+
+diff --git a/oci/stats.go b/oci/stats.go
+index b4981456a..cff7466f9 100644
+--- a/oci/stats.go
++++ b/oci/stats.go
+@@ -1,3 +1,5 @@
++// +build linux,!arm,!386
++
+ package oci
+
+ import (
+diff --git a/oci/stats_32.go b/oci/stats_32.go
+new file mode 100644
+index 000000000..4afb4c270
+--- /dev/null
++++ b/oci/stats_32.go
+@@ -0,0 +1,64 @@
++// +build linux,arm linux,386
++
++package oci
++
++import (
++	"strings"
++	"syscall"
++
++	"github.com/opencontainers/runc/libcontainer"
++)
++
++// ContainerStats contains the statistics information for a running container
++type ContainerStats struct {
++	Container   string
++	CPU         float64
++	CPUNano     uint64
++	SystemNano  int64
++	MemUsage    uint64
++	MemLimit    uint64
++	MemPerc     float64
++	NetInput    uint64
++	NetOutput   uint64
++	BlockInput  uint64
++	BlockOutput uint64
++	PIDs        uint64
++}
++
++// Returns the total number of bytes transmitted and received for the given container stats
++func getContainerNetIO(stats *libcontainer.Stats) (received uint64, transmitted uint64) {
++	for _, iface := range stats.Interfaces {
++		received += iface.RxBytes
++		transmitted += iface.TxBytes
++	}
++	return
++}
++
++func calculateBlockIO(stats *libcontainer.Stats) (read uint64, write uint64) {
++	for _, blkIOEntry := range stats.CgroupStats.BlkioStats.IoServiceBytesRecursive {
++		switch strings.ToLower(blkIOEntry.Op) {
++		case "read":
++			read += blkIOEntry.Value
++		case "write":
++			write += blkIOEntry.Value
++		}
++	}
++	return
++}
++
++// getMemory limit returns the memory limit for a given cgroup
++// If the configured memory limit is larger than the total memory on the sys, the
++// physical system memory size is returned
++func getMemLimit(cgroupLimit uint64) uint64 {
++	si := &syscall.Sysinfo_t{}
++	err := syscall.Sysinfo(si)
++	if err != nil {
++		return cgroupLimit
++	}
++
++	physicalLimit := uint64(si.Totalram)
++	if cgroupLimit > physicalLimit {
++		return physicalLimit
++	}
++	return cgroupLimit
++}
+-- 
+2.21.0
+
