@@ -12,7 +12,7 @@
 %global provider_tld com
 %global project cri-o
 %global repo cri-o
-# https://github.com/kubernetes-incubator/cri-o
+# https://github.com/cri-o/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
 %global commit0 b7644f67e6383cc862b3e37fb74fba334b0b2721
@@ -24,7 +24,7 @@
 Name: %{repo}
 Epoch: 2
 Version: 1.14.1
-Release: 2.git%{shortcommit0}%{?dist}
+Release: 2.dev.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
