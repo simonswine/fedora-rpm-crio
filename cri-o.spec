@@ -22,9 +22,12 @@
 %global service_name crio
 
 Name: %{repo}
+# No Epoch for CentOS
+%if 0%{?fedora}
 Epoch: 2
+%endif
 Version: 1.14.1
-Release: 2.dev.git%{shortcommit0}%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -32,6 +35,7 @@ URL: %{git0}
 Source0: %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
 Source3: %{service_name}-network.sysconfig
 Source4: %{service_name}-storage.sysconfig
+Source5: %{service_name}-metrics.sysconfig
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
 BuildRequires: %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
 BuildRequires: btrfs-progs-devel
@@ -55,16 +59,15 @@ Requires: containernetworking-plugins >= 0.7.3-1
 %description
 %{summary}
 
-%package -n conmon
-Summary: OCI container runtime monitor
-
-%description -n conmon
-conmon is an OCI container runtime monitor.
-
 %prep
 %autosetup -Sgit -n %{name}-%{commit0}
 sed -i '/strip/d' pause/Makefile
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
+sed -i 's/install.bin: binaries/install.bin:/' Makefile
+sed -i 's/\.gopathok //' Makefile
+sed -i 's/%{version}/%{version}-%{release}/' version/version.go
+sed -i 's/\/local//' contrib/systemd/%{service_name}.service
+#sed -i 's/\/local//' contrib/systemd/%%{service_name}-wipe.service
 
 %build
 mkdir _output
@@ -111,29 +114,26 @@ install -dp %{buildroot}%{_sysconfdir}/%{service_name}
 install -dp %{buildroot}%{_datadir}/containers/oci/hooks.d
 install -dp %{buildroot}%{_datadir}/oci-umount/oci-umount.d
 install -p -m 644 crio.conf %{buildroot}%{_sysconfdir}/%{service_name}
-install -p -m 644 seccomp.json %{buildroot}%{_sysconfdir}/%{service_name}
+#install -p -m 644 seccomp.json %%{buildroot}%%{_sysconfdir}/%%{service_name}
 install -p -m 644 crio-umount.conf %{buildroot}%{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
 install -p -m 644 crictl.yaml %{buildroot}%{_sysconfdir}
 
 install -dp %{buildroot}%{_sysconfdir}/sysconfig
+install -p -m 644 contrib/sysconfig/%{service_name} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}
 install -p -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-network
 install -p -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-storage
+install -p -m 644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-metrics
 
-# install manpages
-install -dp %{buildroot}%{_mandir}/man{5,8}
-install -p -m 644 docs/*.5 %{buildroot}%{_mandir}/man5
-install -p -m 644 docs/*.8 %{buildroot}%{_mandir}/man8
-
-# install bash completion
-install -dp %{buildroot}%{_datadir}/bash-completion/completions
-
-# install unitfiles
-install -dp %{buildroot}%{_unitdir}
-install contrib/systemd/%{service_name}.service %{buildroot}%{_unitdir}
-ln -sf %{_unitdir}/%{service_name}.service %{buildroot}%{_unitdir}/%{name}.service
-install contrib/systemd/%{service_name}-shutdown.service %{buildroot}%{_unitdir}
+make PREFIX=%{buildroot}%{_usr} DESTDIR=%{buildroot} \
+            install.bin \
+            install.completions \
+            install.config \
+            install.man \
+            install.systemd
 
 install -dp %{buildroot}%{_sharedstatedir}/containers
+#install -dp %%{buildroot}%%{_libexecdir}/%%{service_name}/%%{service_name}-wipe
+#install -dp %%{buildroot}%%{_usr}/lib/systemd/system-preset
 
 %check
 %if 0%{?with_check}
@@ -160,9 +160,11 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_mandir}/man8/%{service_name}.8*
 %dir %{_sysconfdir}/%{service_name}
 %config(noreplace) %{_sysconfdir}/%{service_name}/%{service_name}.conf
-%config(noreplace) %{_sysconfdir}/%{service_name}/seccomp.json
+#%%config(noreplace) %%{_sysconfdir}/%%{service_name}/seccomp.json
+%config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}
 %config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-storage
 %config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-network
+%config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-metrics
 %config(noreplace) %{_sysconfdir}/cni/net.d/100-%{service_name}-bridge.conf
 %config(noreplace) %{_sysconfdir}/cni/net.d/200-loopback.conf
 %config(noreplace) %{_sysconfdir}/crictl.yaml
@@ -172,15 +174,13 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_unitdir}/%{service_name}.service
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{service_name}-shutdown.service
+#%%{_unitdir}/%%{service_name}-wipe.service
 %dir %{_sharedstatedir}/containers
 %dir %{_datadir}/oci-umount
 %dir %{_datadir}/oci-umount/oci-umount.d
 %{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
-
-%files -n conmon
-%license LICENSE
-%doc README.md
-%{_libexecdir}/%{service_name}/conmon
+#%%dir %%{_libexecdir}/%%{service_name}/%%{service_name}-wipe
+#%%{_libexecdir}/%%{service_name}/%%{service_name}-wipe/*
 
 %changelog
 * Mon May 27 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.14.1-2.gitb7644f6
