@@ -15,7 +15,7 @@
 # https://github.com/cri-o/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 b7644f67e6383cc862b3e37fb74fba334b0b2721
+%global commit0 485227d727401fa0472a449b5df3b0537e314ebb
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -26,8 +26,8 @@ Name: %{repo}
 %if 0%{?fedora}
 Epoch: 2
 %endif
-Version: 1.14.1
-Release: 2%{?dist}
+Version: 1.15.0
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -183,6 +183,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 #%%{_libexecdir}/%%{service_name}/%%{service_name}-wipe/*
 
 %changelog
+* Sun Jul 21 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.0-1
+- bump to 1.15.0
+- autobuilt 485227d
+
 * Mon May 27 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.14.1-2.gitb7644f6
 - add a patch to build on 32-bit systems (upstream PR: 2409)
 
