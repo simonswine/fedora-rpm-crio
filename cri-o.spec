@@ -25,6 +25,10 @@
 
 %global service_name crio
 
+# Used for comparing with latest upstream tag
+# to decide whether to autobuild (non-rawhide only)
+%global built_tag v1.15.0
+
 Name: %{repo}
 Epoch: 2
 Version: 1.15.0
