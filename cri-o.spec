@@ -19,7 +19,7 @@
 # https://github.com/cri-o/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 485227d727401fa0472a449b5df3b0537e314ebb
+%global commit0 f0827bb332854ffcff2f4d9f64d68b8139970b3d
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -27,11 +27,11 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%global built_tag v1.15.0
+%global built_tag v1.15.1
 
 Name: %{repo}
 Epoch: 2
-Version: 1.15.0
+Version: 1.15.1
 Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
@@ -189,6 +189,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 #%%{_libexecdir}/%%{service_name}/%%{service_name}-wipe/*
 
 %changelog
+* Wed Sep 04 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.1-1
+- bump to v1.15.1
+
 * Sun Jul 21 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.0-1
 - bump to 1.15.0
 - autobuilt 485227d
