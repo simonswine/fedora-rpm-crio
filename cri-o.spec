@@ -180,13 +180,13 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_unitdir}/%{service_name}.service
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{service_name}-shutdown.service
-#%%{_unitdir}/%%{service_name}-wipe.service
+%{_unitdir}/%{service_name}-wipe.service
 %dir %{_sharedstatedir}/containers
 %dir %{_datadir}/oci-umount
 %dir %{_datadir}/oci-umount/oci-umount.d
 %{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
-#%%dir %%{_libexecdir}/%%{service_name}/%%{service_name}-wipe
-#%%{_libexecdir}/%%{service_name}/%%{service_name}-wipe/*
+%dir %{_libexecdir}/%{service_name}/%{service_name}-wipe
+%{_libexecdir}/%{service_name}/%{service_name}-wipe/*
 
 %changelog
 * Wed Sep 04 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.1-1
