@@ -32,7 +32,7 @@
 Name: %{repo}
 Epoch: 2
 Version: 1.15.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -59,7 +59,7 @@ Requires: runc >= 1.0.0-16
 Obsoletes: ocid <= 0.3
 Provides: ocid = %{version}-%{release}
 Provides: %{service_name} = %{version}-%{release}
-Requires: containernetworking-plugins >= 0.7.3-1
+Requires: containernetworking-plugins >= 0.7.5-1
 
 %description
 %{summary}
@@ -72,7 +72,7 @@ sed -i 's/install.bin: binaries/install.bin:/' Makefile
 sed -i 's/\.gopathok //' Makefile
 sed -i 's/%{version}/%{version}-%{release}/' version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
-#sed -i 's/\/local//' contrib/systemd/%%{service_name}-wipe.service
+sed -i 's/\/local//' contrib/systemd/%{service_name}-wipe.service
 
 %build
 mkdir _output
@@ -189,6 +189,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_libexecdir}/%{service_name}/%{service_name}-wipe/*
 
 %changelog
+* Mon Sep 09 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.1-2
+- correct path in crio-wipe unitfile
+
 * Wed Sep 04 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.1-1
 - bump to v1.15.1
 
