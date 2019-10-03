@@ -19,7 +19,7 @@
 # https://github.com/cri-o/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 f0827bb332854ffcff2f4d9f64d68b8139970b3d
+%global commit0 b7316701c17ebc7901d10a716f15e66008c52525
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -31,8 +31,8 @@
 
 Name: %{repo}
 Epoch: 2
-Version: 1.15.1
-Release: 2%{?dist}
+Version: 1.15.2
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -189,6 +189,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_libexecdir}/%{service_name}/%{service_name}-wipe/*
 
 %changelog
+* Thu Oct 03 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.2-1
+- bump to v1.15.2
+
 * Mon Sep 09 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.1-2
 - correct path in crio-wipe unitfile
 
