@@ -53,6 +53,7 @@ BuildRequires: gpgme-devel
 BuildRequires: libassuan-devel
 BuildRequires: libseccomp-devel
 BuildRequires: pkgconfig(systemd)
+BuildRequires: make
 Requires(pre): container-selinux
 Requires: containers-common >= 1:0.1.31-14
 Requires: runc >= 1.0.0-16
