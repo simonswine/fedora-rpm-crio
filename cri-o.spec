@@ -1,4 +1,4 @@
-%global with_debug 1
+%global with_debug 0
 %global with_check 0
 
 %if 0%{?with_debug}
@@ -19,7 +19,7 @@
 # https://github.com/cri-o/cri-o
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path %{provider_prefix}
-%global commit0 b7316701c17ebc7901d10a716f15e66008c52525
+%global commit0 6a4b481e35f2b11e5b3ae9b930991cfcac3d687d
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{provider_prefix}
 
@@ -31,8 +31,8 @@
 
 Name: %{repo}
 Epoch: 2
-Version: 1.15.2
-Release: 1%{?dist}
+Version: 1.16.0
+Release: 0.1.rc1.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -61,6 +61,7 @@ Obsoletes: ocid <= 0.3
 Provides: ocid = %{version}-%{release}
 Provides: %{service_name} = %{version}-%{release}
 Requires: containernetworking-plugins >= 0.7.5-1
+Requires: conmon >= 2.0.2-1
 
 %description
 %{summary}
@@ -71,7 +72,7 @@ sed -i '/strip/d' pause/Makefile
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
 sed -i 's/\.gopathok //' Makefile
-sed -i 's/%{version}/%{version}-%{release}/' version/version.go
+sed -i 's/%{version}/%{version}-%{release}/' internal/version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 sed -i 's/\/local//' contrib/systemd/%{service_name}-wipe.service
 
@@ -87,12 +88,7 @@ export GOPATH=$(pwd)/_output:$(pwd)
 export BUILDTAGS="$(hack/btrfs_installed_tag.sh) $(hack/btrfs_tag.sh) $(hack/libdm_installed.sh) $(hack/libdm_no_deferred_remove_tag.sh) $(hack/seccomp_tag.sh) $(hack/selinux_tag.sh)"
 export GO111MODULE=off
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
-
-# build conmon
-%gobuild -o bin/crio-config %{import_path}/cmd/crio-config
-pushd conmon && ../bin/crio-config
-%{__make} all
-popd
+%gobuild -o bin/%{service_name}-status %%{import_path}/cmd/%{service_name}-status
 
 %{__make} bin/pause docs
 
@@ -104,12 +100,11 @@ sed -i 's/\/local//' contrib/systemd/%{service_name}.service
       --conmon "%{_libexecdir}/%{service_name}/conmon" \
       --cni-plugin-dir "%{_libexecdir}/cni" \
       --default-mounts "%{_datadir}/rhel/secrets:/run/secrets" \
-      --file-locking=false config > %{service_name}.conf
+      config > %{service_name}.conf
 
 # install binaries
 install -dp %{buildroot}{%{_bindir},%{_libexecdir}/%{service_name}}
 install -p -m 755 bin/%{service_name} %{buildroot}%{_bindir}
-install -p -m 755 bin/conmon %{buildroot}%{_libexecdir}/%{service_name}
 install -p -m 755 bin/pause %{buildroot}%{_libexecdir}/%{service_name}
 
 # install conf files
@@ -163,11 +158,11 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %license LICENSE
 %doc README.md
 %{_bindir}/%{service_name}
+%{_bindir}/%{service_name}-status
 %{_mandir}/man5/%{service_name}.conf.5*
-%{_mandir}/man8/%{service_name}.8*
+%{_mandir}/man8/%{service_name}*.8*
 %dir %{_sysconfdir}/%{service_name}
 %config(noreplace) %{_sysconfdir}/%{service_name}/%{service_name}.conf
-#%%config(noreplace) %%{_sysconfdir}/%%{service_name}/seccomp.json
 %config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}
 %config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-storage
 %config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-network
@@ -176,7 +171,6 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %config(noreplace) %{_sysconfdir}/cni/net.d/200-loopback.conf
 %config(noreplace) %{_sysconfdir}/crictl.yaml
 %dir %{_libexecdir}/%{service_name}
-%{_libexecdir}/%{service_name}/conmon
 %{_libexecdir}/%{service_name}/pause
 %{_unitdir}/%{service_name}.service
 %{_unitdir}/%{name}.service
@@ -186,10 +180,14 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %dir %{_datadir}/oci-umount
 %dir %{_datadir}/oci-umount/oci-umount.d
 %{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
-%dir %{_libexecdir}/%{service_name}/%{service_name}-wipe
-%{_libexecdir}/%{service_name}/%{service_name}-wipe/*
+%{_datadir}/bash-completion/completions/%{service_name}*
+%{_datadir}/fish/completions/%{service_name}*.fish
+%{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Oct 21 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.16.0-1.rc1.git6a4b481
+- built release-1.16
+
 * Thu Oct 03 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.15.2-1
 - bump to v1.15.2
 
