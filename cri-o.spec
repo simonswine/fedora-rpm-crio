@@ -27,7 +27,7 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%global built_tag v1.15.1
+%global built_tag v1.16.0-rc1
 
 Name: %{repo}
 Epoch: 2
