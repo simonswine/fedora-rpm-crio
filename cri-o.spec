@@ -32,7 +32,7 @@
 Name: %{repo}
 Epoch: 2
 Version: 1.16.0
-Release: 0.1.git%{shortcommit0}%{?dist}
+Release: 0.1.rc1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
