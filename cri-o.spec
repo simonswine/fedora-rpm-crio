@@ -18,7 +18,7 @@
 %global repo cri-o
 # https://github.com/cri-o/cri-o
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
-%global commit0 6a4b481e35f2b11e5b3ae9b930991cfcac3d687d
+%global commit0 a783f2374ebcdc4c487c7dd6ca4329b72f2749cf
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -26,12 +26,12 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%global built_tag v1.16.0-rc1
+%global built_tag v1.16.0-rc2
 
 Name: %{repo}
 Epoch: 2
 Version: 1.16.0
-Release: 0.1.rc1%{?dist}
+Release: 0.2.rc2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -184,6 +184,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Nov 04 2019 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.16.0-0.2.rc2
+- bump to v1.16.0-rc2
+- autobuilt a783f23
+
 * Mon Oct 21 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.16.0-1.rc1.git6a4b481
 - built release-1.16
 
