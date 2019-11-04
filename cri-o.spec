@@ -17,11 +17,10 @@
 %global project cri-o
 %global repo cri-o
 # https://github.com/cri-o/cri-o
-%global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
-%global import_path %{provider_prefix}
+%global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 %global commit0 6a4b481e35f2b11e5b3ae9b930991cfcac3d687d
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
-%global git0 https://%{provider_prefix}
+%global git0 https://%{import_path}
 
 %global service_name crio
 
