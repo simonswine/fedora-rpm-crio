@@ -31,7 +31,7 @@
 Name: %{repo}
 Epoch: 2
 Version: 1.16.0
-Release: 0.2.rc2%{?dist}
+Release: 0.3.rc2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -61,6 +61,7 @@ Provides: ocid = %{version}-%{release}
 Provides: %{service_name} = %{version}-%{release}
 Requires: containernetworking-plugins >= 0.7.5-1
 Requires: conmon >= 2.0.2-1
+Requires: socat
 
 %description
 %{summary}
@@ -184,6 +185,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Tue Nov 05 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.16.0-0.3.rc2
+- Requires: socat
+
 * Mon Nov 04 2019 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.16.0-0.2.rc2
 - bump to v1.16.0-rc2
 - autobuilt a783f23
