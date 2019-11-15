@@ -73,6 +73,7 @@ sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
 sed -i 's/\.gopathok //' Makefile
 sed -i 's/%{version}/%{version}-%{release}/' internal/version/version.go
+sed -i 's/module_/module-/' internal/version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 sed -i 's/\/local//' contrib/systemd/%{service_name}-wipe.service
 
