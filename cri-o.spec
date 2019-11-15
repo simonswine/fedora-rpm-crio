@@ -31,7 +31,7 @@
 Name: %{repo}
 Epoch: 2
 Version: 1.16.0
-Release: 0.3.rc2%{?dist}
+Release: 0.4.rc2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -186,6 +186,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Fri Nov 15 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.16.0-0.4.rc2
+- Resolves: #1740730, #1743017, #1754170 - no underscore in crio --version
+
 * Tue Nov 05 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.16.0-0.3.rc2
 - Requires: socat
 
