@@ -18,7 +18,7 @@
 %global repo cri-o
 # https://github.com/cri-o/cri-o
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
-%global commit0 a783f2374ebcdc4c487c7dd6ca4329b72f2749cf
+%global commit0 bf8fcf34c942ba973a4f694094b46f914c779c0a
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -26,12 +26,12 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%global built_tag v1.16.0-rc2
+%global built_tag v1.16.1
 
 Name: %{repo}
 Epoch: 2
-Version: 1.16.0
-Release: 0.4.rc2%{?dist}
+Version: 1.16.1
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -72,7 +72,6 @@ sed -i '/strip/d' pause/Makefile
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
 sed -i 's/\.gopathok //' Makefile
-sed -i 's/%{version}/%{version}-%{release}/' internal/version/version.go
 sed -i 's/module_/module-/' internal/version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 sed -i 's/\/local//' contrib/systemd/%{service_name}-wipe.service
@@ -186,6 +185,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Wed Dec 04 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.16.1-1
+- Resolves: #1740730, #1743017, #1754170
+
 * Fri Nov 15 2019 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.16.0-0.4.rc2
 - Resolves: #1740730, #1743017, #1754170 - no underscore in crio --version
 
