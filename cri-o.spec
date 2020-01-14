@@ -18,7 +18,7 @@
 %global repo cri-o
 # https://github.com/cri-o/cri-o
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
-%global commit0 cd4b6ae84b438ad8ef622e1e5407bbd2bf78b29c
+%global commit0 b89a5fce474e53785bb0adad4a29e44ef424a2f9
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -26,12 +26,12 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%global built_tag v1.16.2
+%global built_tag v1.17.0-rc1
 
 Name: %{repo}
 Epoch: 2
-Version: 1.16.2
-Release: 1%{?dist}
+Version: 1.17.0
+Release: 0.1.git%{shortcommit0}%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -68,7 +68,6 @@ Requires: socat
 
 %prep
 %autosetup -Sgit -n %{name}-%{commit0}
-sed -i '/strip/d' pause/Makefile
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
 sed -i 's/\.gopathok //' Makefile
@@ -90,7 +89,7 @@ export GO111MODULE=off
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
 %gobuild -o bin/%{service_name}-status %%{import_path}/cmd/%{service_name}-status
 
-%{__make} bin/pause docs
+%{__make} bin/pinns docs
 
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
@@ -105,7 +104,6 @@ sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 # install binaries
 install -dp %{buildroot}{%{_bindir},%{_libexecdir}/%{service_name}}
 install -p -m 755 bin/%{service_name} %{buildroot}%{_bindir}
-install -p -m 755 bin/pause %{buildroot}%{_libexecdir}/%{service_name}
 
 # install conf files
 install -dp %{buildroot}%{_sysconfdir}/cni/net.d
@@ -159,6 +157,7 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %doc README.md
 %{_bindir}/%{service_name}
 %{_bindir}/%{service_name}-status
+%{_bindir}/pinns
 %{_mandir}/man5/%{service_name}.conf.5*
 %{_mandir}/man8/%{service_name}*.8*
 %dir %{_sysconfdir}/%{service_name}
@@ -171,7 +170,6 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %config(noreplace) %{_sysconfdir}/cni/net.d/200-loopback.conf
 %config(noreplace) %{_sysconfdir}/crictl.yaml
 %dir %{_libexecdir}/%{service_name}
-%{_libexecdir}/%{service_name}/pause
 %{_unitdir}/%{service_name}.service
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{service_name}-shutdown.service
@@ -185,6 +183,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Tue Jan 14 2020 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.17.0-0.1.gitb89a5fc
+- built v1.17.0-rc1
+
 * Wed Jan 08 2020 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.16.2-1
 - autobuilt $LATEST_TAG
 
