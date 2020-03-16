@@ -18,7 +18,7 @@
 %global repo cri-o
 # https://github.com/cri-o/cri-o
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
-%global commit0 6d0ffae63b9b7d8f07e7f9cf50736a67fb31faf3
+%global commit0 ee2de87bd8e2a7a84799476cb4fc4ce8a78fdf6d
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -26,11 +26,11 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%global built_tag v1.17.0
+%global built_tag v1.17.1
 
 Name: %{repo}
 Epoch: 2
-Version: 1.17.0
+Version: 1.17.1
 Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
@@ -183,6 +183,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Mar 16 2020 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.17.1-1
+- autobuilt v1.17.1
+
 * Mon Feb 10 2020 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.17.0-1
 - autobuilt $LATEST_TAG
 
