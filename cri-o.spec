@@ -1,4 +1,4 @@
-%global with_debug 0
+%global with_debug 1
 %global with_check 0
 
 %if 0%{?with_debug}
@@ -26,17 +26,19 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%global built_tag v1.17.1
+%define built_tag v1.17.1
+%define built_tag_strip %(b=%{built_tag}; echo ${b:1})
+%define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Name: %{repo}
 Epoch: 2
 Version: 1.17.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
 URL: %{git0}
-Source0: %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
+Source0: %{download_url}
 Source3: %{service_name}-network.sysconfig
 Source4: %{service_name}-storage.sysconfig
 Source5: %{service_name}-metrics.sysconfig
@@ -67,7 +69,7 @@ Requires: socat
 %{summary}
 
 %prep
-%autosetup -Sgit -n %{name}-%{commit0}
+%autosetup -Sgit -n %{name}-%{built_tag_strip}
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
 sed -i 's/\.gopathok //' Makefile
@@ -175,6 +177,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_unitdir}/%{service_name}-shutdown.service
 %{_unitdir}/%{service_name}-wipe.service
 %dir %{_sharedstatedir}/containers
+%dir %{_datadir}/containers
+%dir %{_datadir}/containers/oci
+%dir %{_datadir}/containers/oci/hooks.d
 %dir %{_datadir}/oci-umount
 %dir %{_datadir}/oci-umount/oci-umount.d
 %{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
@@ -183,6 +188,11 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Fri Mar 20 2020 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.17.1-2
+- Resolves: #1795858 - list /usr/share/containers/oci/hooks.d
+- enable debuginfo
+- spec changes for autobuilder
+
 * Mon Mar 16 2020 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.17.1-1
 - autobuilt v1.17.1
 
