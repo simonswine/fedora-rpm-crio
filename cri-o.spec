@@ -57,7 +57,11 @@ BuildRequires: libassuan-devel
 BuildRequires: libseccomp-devel
 BuildRequires: pkgconfig(systemd)
 BuildRequires: make
-Requires(pre): container-selinux
+%if 0%{?fedora}
+Requires(pre): (container-selinux if selinux-policy)
+%else
+Requires: container-selinux
+%endif
 Requires: containers-common >= 1:0.1.31-14
 Requires: runc >= 1.0.0-16
 Obsoletes: ocid <= 0.3
