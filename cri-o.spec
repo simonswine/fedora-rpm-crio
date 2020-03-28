@@ -1,4 +1,8 @@
+%ifnarch aarch64 && 0%{?centos}
+%global with_debug 0
+%else
 %global with_debug 1
+%endif
 %global with_check 0
 
 %if 0%{?with_debug}
