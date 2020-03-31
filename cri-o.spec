@@ -1,4 +1,4 @@
-%ifarch aarch64 && 0%{?centos}
+%if 0%{?centos}
 %global with_debug 0
 %else
 %global with_debug 1
@@ -82,6 +82,7 @@ Requires: socat
 %autosetup -Sgit -n %{name}-%{built_tag_strip}
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
+sed -i 's/install.man: $(MANPAGES)/install.man:/' Makefile
 sed -i 's/\.gopathok //' Makefile
 sed -i 's/module_/module-/' internal/version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
@@ -101,7 +102,7 @@ export GO111MODULE=off
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
 %gobuild -o bin/%{service_name}-status %{import_path}/cmd/%{service_name}-status
 
-%{__make} bin/pinns docs
+GO_MD2MAN=go-md2man %{__make} bin/pinns docs
 
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
