@@ -22,7 +22,7 @@
 %global repo cri-o
 # https://github.com/cri-o/cri-o
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
-%global commit0 ee2de87bd8e2a7a84799476cb4fc4ce8a78fdf6d
+%global commit0 705ae1b743513fdaf47d18f190c670b634589f28
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -36,8 +36,8 @@
 
 Name: %{repo}
 Epoch: 2
-Version: 1.17.1
-Release: 2%{?dist}
+Version: 1.17.2
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -198,6 +198,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Tue Mar 31 2020 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.17.2-1
+- autobuilt v1.17.2
+
 * Fri Mar 20 2020 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.17.1-2
 - Resolves: #1795858 - list /usr/share/containers/oci/hooks.d
 - enable debuginfo
