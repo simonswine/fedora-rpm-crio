@@ -30,14 +30,14 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.17.1
+%define built_tag v1.17.2
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Name: %{repo}
 Epoch: 2
 Version: 1.17.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -198,6 +198,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Tue Mar 31 2020 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.17.2-2
+- use correct tag
+
 * Tue Mar 31 2020 RH Container Bot <rhcontainerbot@fedoraproject.org> - 2:1.17.2-1
 - autobuilt v1.17.2
 
