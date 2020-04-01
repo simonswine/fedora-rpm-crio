@@ -1,4 +1,4 @@
-%global with_debug 0
+%global with_debug 1
 %global with_check 0
 
 %if 0%{?with_debug}
@@ -9,7 +9,7 @@
 %endif
 
 %if ! 0%{?gobuild:1}
-%define gobuild(o:) GO111MODULE=off go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '-Wl,-z,relro -Wl,--as-needed  -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld '" -a -v -x %{?**}; 
+%define gobuild(o:) GO111MODULE=off go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -compressdwarf=false -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '-Wl,-z,relro -Wl,--as-needed  -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld '" -a -v -x %{?**}; 
 %endif
 
 %global provider github
@@ -27,6 +27,8 @@
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
 %global built_tag v1.16.4
+%define built_tag_strip %(b=%{built_tag}; echo ${b:1})
+%define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Name: %{repo}
 Epoch: 2
@@ -36,14 +38,16 @@ ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
 URL: %{git0}
-Source0: %{git0}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
+Source0: %{download_url}
 Source3: %{service_name}-network.sysconfig
 Source4: %{service_name}-storage.sysconfig
 Source5: %{service_name}-metrics.sysconfig
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
-BuildRequires: %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
+BuildRequires: golang
+%if 0%{?fedora}
 BuildRequires: btrfs-progs-devel
 BuildRequires: device-mapper-devel
+%endif
 BuildRequires: git
 BuildRequires: glib2-devel
 BuildRequires: glibc-static
@@ -53,7 +57,11 @@ BuildRequires: libassuan-devel
 BuildRequires: libseccomp-devel
 BuildRequires: pkgconfig(systemd)
 BuildRequires: make
+%if 0%{?fedora}
 Requires(pre): container-selinux
+%else
+Requires: container-selinux
+%endif
 Requires: containers-common >= 1:0.1.31-14
 Requires: runc >= 1.0.0-16
 Obsoletes: ocid <= 0.3
@@ -67,10 +75,12 @@ Requires: socat
 %{summary}
 
 %prep
-%autosetup -Sgit -n %{name}-%{commit0}
+%autosetup -Sgit -n %{name}-%{built_tag_strip}
 sed -i '/strip/d' pause/Makefile
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
+sed -i 's/install.man: $(MANPAGES)/install.man:/' Makefile
+sed -i 's/completions: binaries/completions:/' Makefile
 sed -i 's/\.gopathok //' Makefile
 sed -i 's/module_/module-/' internal/version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
