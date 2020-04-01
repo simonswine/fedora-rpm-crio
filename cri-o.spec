@@ -28,9 +28,14 @@
 # to decide whether to autobuild (non-rawhide only)
 %global built_tag v1.16.4
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
+%define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
-Name: %{repo}
+%if 0%{?fedora}
+Name: %{repo}-%{crio_release_tag}
+%else
+Name: %{repo}-%{crio_release_tag}
+%endif
 Epoch: 2
 Version: 1.16.4
 Release: 1%{?dist}
@@ -75,7 +80,7 @@ Requires: socat
 %{summary}
 
 %prep
-%autosetup -Sgit -n %{name}-%{built_tag_strip}
+%autosetup -Sgit -n %{repo}-%{built_tag_strip}
 sed -i '/strip/d' pause/Makefile
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
@@ -183,7 +188,7 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %dir %{_libexecdir}/%{service_name}
 %{_libexecdir}/%{service_name}/pause
 %{_unitdir}/%{service_name}.service
-%{_unitdir}/%{name}.service
+%{_unitdir}/%{repo}.service
 %{_unitdir}/%{service_name}-shutdown.service
 %{_unitdir}/%{service_name}-wipe.service
 %dir %{_sharedstatedir}/containers
