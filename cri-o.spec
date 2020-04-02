@@ -36,7 +36,7 @@
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 %if 0%{?fedora}
-Name: %{repo}-%{crio_release_tag}
+Name: %{repo}
 %else
 Name: %{repo}-%{crio_release_tag}
 %endif
