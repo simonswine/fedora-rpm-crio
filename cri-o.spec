@@ -16,12 +16,12 @@
 %define gobuild(o:) GO111MODULE=off go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -compressdwarf=false -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '-Wl,-z,relro -Wl,--as-needed  -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld '" -a -v -x %{?**}; 
 %endif
 
-%define provider github
-%define provider_tld com
-%define project cri-o
-%define repo cri-o
+%global provider github
+%global provider_tld com
+%global project cri-o
+%global repo cri-o
 # https://github.com/cri-o/cri-o
-%define import_path %{provider}.%{provider_tld}/%{project}/%{repo}
+%global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 %global commit0 9238eeed3530e8038046a2b0e7e7efb5fb047afc
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
