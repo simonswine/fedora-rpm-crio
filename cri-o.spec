@@ -1,4 +1,8 @@
+%if 0%{?centos}
+%global with_debug 0
+%else
 %global with_debug 1
+%endif
 %global with_check 0
 
 %if 0%{?with_debug}
@@ -63,7 +67,7 @@ BuildRequires: libseccomp-devel
 BuildRequires: pkgconfig(systemd)
 BuildRequires: make
 %if 0%{?fedora}
-Requires(pre): container-selinux
+Requires(pre): (container-selinux if selinux-policy)
 %else
 Requires: container-selinux
 %endif
