@@ -107,7 +107,7 @@ export GOPATH=$(pwd)/_output:$(pwd)
 export BUILDTAGS="$(hack/btrfs_installed_tag.sh) $(hack/btrfs_tag.sh) $(hack/libdm_installed.sh) $(hack/libdm_no_deferred_remove_tag.sh) $(hack/seccomp_tag.sh) $(hack/selinux_tag.sh)"
 export GO111MODULE=off
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
-%gobuild -o bin/%{service_name}-status %%{import_path}/cmd/%{service_name}-status
+%gobuild -o bin/%{service_name}-status %{import_path}/cmd/%{service_name}-status
 
 %{__make} bin/pause docs
 
