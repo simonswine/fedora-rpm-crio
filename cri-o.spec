@@ -81,9 +81,6 @@ Requires: conmon >= 2.0.2-1
 Requires: socat
 %if 0%{?centos}
 Provides: cri-o = %{version}-%{release}
-Obsoletes: cri-o-1.14
-Obsoletes: cri-o-1.15
-Obsoletes: cri-o-1.16
 %endif
 
 %description
