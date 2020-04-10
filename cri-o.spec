@@ -36,11 +36,9 @@
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 %if 0%{?fedora}
-Name: %{repo}
-%else
-Name: %{repo}-%{crio_release_tag}
-%endif
 Epoch: 2
+%endif
+Name: %{repo}
 Version: 1.17.2
 Release: 2%{?dist}
 ExcludeArch: ppc64
@@ -80,7 +78,7 @@ Requires: containernetworking-plugins >= 0.7.5-1
 Requires: conmon >= 2.0.2-1
 Requires: socat
 %if 0%{?centos}
-Provides: cri-o = %{version}-%{release}
+Obsoletes: cri-o < %{version}-%{release}
 %endif
 
 %description
