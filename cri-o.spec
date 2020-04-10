@@ -78,7 +78,7 @@ Requires: containernetworking-plugins >= 0.7.5-1
 Requires: conmon >= 2.0.2-1
 Requires: socat
 %if 0%{?centos}
-Obsoletes: cri-o <= %{version}-%{release}
+Obsoletes: cri-o < %{version}-%{release}
 %endif
 
 %description
