@@ -35,9 +35,7 @@
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
-%if 0%{?fedora}
 Epoch: 2
-%endif
 Name: %{repo}
 Version: 1.17.2
 Release: 2%{?dist}
@@ -72,14 +70,11 @@ Requires: container-selinux
 Requires: containers-common >= 1:0.1.31-14
 Requires: runc >= 1.0.0-16
 Obsoletes: ocid <= 0.3
-Provides: ocid = %{version}-%{release}
-Provides: %{service_name} = %{version}-%{release}
+Provides: ocid = %{epoch}:%{version}-%{release}
+Provides: %{service_name} = %{epoch}:%{version}-%{release}
 Requires: containernetworking-plugins >= 0.7.5-1
 Requires: conmon >= 2.0.2-1
 Requires: socat
-%if 0%{?centos}
-Obsoletes: cri-o < %{version}-%{release}
-%endif
 
 %description
 %{summary}
