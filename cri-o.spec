@@ -22,7 +22,7 @@
 %global repo cri-o
 # https://github.com/cri-o/cri-o
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
-%global commit0 705ae1b743513fdaf47d18f190c670b634589f28
+%global commit0 f0aef34b8dc8924175b2d7461004089ec6ea43f8
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -30,15 +30,15 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.17.2
+%define built_tag v1.18.0-rc1
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Epoch: 2
 Name: %{repo}
-Version: 1.17.2
-Release: 2%{?dist}
+Version: 1.18.0
+Release: 0.1.rc1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -112,7 +112,6 @@ sed -i 's/\/local//' contrib/systemd/%{service_name}.service
       --cgroup-manager "systemd" \
       --conmon "%{_libexecdir}/%{service_name}/conmon" \
       --cni-plugin-dir "%{_libexecdir}/cni" \
-      --default-mounts "%{_datadir}/rhel/secrets:/run/secrets" \
       config > %{service_name}.conf
 
 # install binaries
@@ -172,7 +171,7 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_bindir}/%{service_name}
 %{_bindir}/%{service_name}-status
 %{_bindir}/pinns
-%{_mandir}/man5/%{service_name}.conf.5*
+%{_mandir}/man5/%{service_name}.conf*5*
 %{_mandir}/man8/%{service_name}*.8*
 %dir %{_sysconfdir}/%{service_name}
 %config(noreplace) %{_sysconfdir}/%{service_name}/%{service_name}.conf
@@ -200,6 +199,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Wed Apr 15 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.0-0.1.rc1
+- Bump for 1.18 release candidate
+
 * Tue Mar 31 2020 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.17.2-2
 - use correct tag
 
