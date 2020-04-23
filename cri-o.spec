@@ -154,6 +154,11 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %endif
 
 %post
+# Old verions of kernel do not reconigze metacopy option.
+# Reference: github.com/cri-o/cri-o/issues/3631
+%if 0%{?centos} <= 7
+sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
+%endif
 %systemd_post %{service_name}
 
 %preun
