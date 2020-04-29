@@ -48,7 +48,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.18.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -223,6 +223,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Thu Apr 23 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.0-2
+- Fix crio version - github.com/cri-o/cri-o/issues/3684
+
 * Thu Apr 23 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.0-1
 - Bump for 1.18.0 release
 
