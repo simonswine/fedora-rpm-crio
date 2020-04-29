@@ -16,16 +16,26 @@
 %define gobuild(o:) GO111MODULE=off go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '-Wl,-z,relro -Wl,--as-needed  -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld '" -a -v -x %{?**}; 
 %endif
 
+# Global vars
 %global provider github
 %global provider_tld com
 %global project cri-o
 %global repo cri-o
+
+# Related: github.com/cri-o/cri-o/issues/3684
+%global build_timestamp %(date -u +'%Y-%m-%dT%H:%M:%SZ')
+%global git_tree_state clean
+%global criocli_path ""
+
 # https://github.com/cri-o/cri-o
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
+
+# Commit for the builds
 %global commit0 7d79f42b28ad00cf2e7d86604a5a4007303ac328
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
+# Services
 %global service_name crio
 
 # Used for comparing with latest upstream tag
@@ -100,6 +110,15 @@ ln -s vendor src
 export GOPATH=$(pwd)/_output:$(pwd)
 export BUILDTAGS="$(hack/btrfs_installed_tag.sh) $(hack/btrfs_tag.sh) $(hack/libdm_installed.sh) $(hack/libdm_no_deferred_remove_tag.sh) $(hack/seccomp_tag.sh) $(hack/selinux_tag.sh)"
 export GO111MODULE=off
+
+# FIX-ME we are doing a mimic of Makefile.
+# Related: github.com/cri-o/cri-o/issues/3684
+export LDFLAGS="-X %{import_path}/internal/pkg/criocli.DefaultsPath=%{criocli_path}
+-X  %{import_path}/internal/version.buildDate=%{build_timestamp}
+-X  %{import_path}/internal/version.gitCommit=%{commit0}
+-X  %{import_path}/internal/version.version=%{version}
+-X  %{import_path}/internal/version.gitTreeState=%{git_tree_state}"
+
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
 %gobuild -o bin/%{service_name}-status %{import_path}/cmd/%{service_name}-status
 
