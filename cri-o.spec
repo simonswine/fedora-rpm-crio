@@ -31,7 +31,7 @@
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 
 # Commit for the builds
-%global commit0 7d79f42b28ad00cf2e7d86604a5a4007303ac328
+%global commit0 5cbf694c34f8d1af19eb873e39057663a4830635
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -40,15 +40,15 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.18.0
+%define built_tag v1.18.1
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Epoch: 2
 Name: %{repo}
-Version: 1.18.0
-Release: 2%{?dist}
+Version: 1.18.1
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -223,6 +223,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Thu May 16 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.1-1
+- Release 1.18.1
+
 * Thu Apr 23 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.0-2
 - Fix crio version - github.com/cri-o/cri-o/issues/3684
 
