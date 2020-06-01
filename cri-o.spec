@@ -38,7 +38,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.16.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -197,6 +197,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_unitdir}/%{service_name}-shutdown.service
 %{_unitdir}/%{service_name}-wipe.service
 %dir %{_sharedstatedir}/containers
+%dir %{_datadir}/containers
+%dir %{_datadir}/containers/oci
+%dir %{_datadir}/containers/oci/hooks.d
 %dir %{_datadir}/oci-umount
 %dir %{_datadir}/oci-umount/oci-umount.d
 %{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
@@ -205,6 +208,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Jun 1 2020 Christian Simon <simon@swine.de> - 2:1.16.6-2
+- ensure oci hook dir is included in rpm
+
 * Wed May 06 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.16.6-1
 - build v1.16.6
 
